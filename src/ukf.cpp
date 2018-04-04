@@ -12,6 +12,12 @@ using std::vector;
  * This is scaffolding, do not modify
  */
 UKF::UKF() {
+    
+  
+  /// Open NIS Files
+  NIS_file_radar_.open( "../NIS/NIS_radar.txt", ios::out );
+  NIS_file_laser_.open( "../NIS/NIS_laser.txt", ios::out );
+    
   // if this is false, laser measurements will be ignored (except during init)
   use_laser_ = true;
 
@@ -93,8 +99,6 @@ UKF::UKF() {
     NIS_radar_ = 0.0;
     
 }
-
-UKF::~UKF() {}
 
 /**
  * @param {MeasurementPackage} meas_package The latest measurement data of
@@ -295,6 +299,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
     P_ = P_ - K * S * K.transpose();
     
     NIS_lidar_ = Zdif.transpose() * S.inverse() * Zdif;
+    NIS_file_laser_ << NIS_lidar_ << endl;
 }
 
 /**
@@ -372,7 +377,13 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
     P_ = P_ - K * S * K.transpose();
     
     NIS_radar_ = Zdif.transpose() * S.inverse() * Zdif;
-    
+    NIS_file_radar_ << NIS_radar_ << endl;;
+}
+
+UKF::~UKF()
+{
+    NIS_file_radar_.close();
+    NIS_file_laser_.close();
 }
 
 void UKF::NormalizeAngleOnComponent(VectorXd vector, int i) {
